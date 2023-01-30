@@ -71,7 +71,7 @@ volume = volume.replace(',', '')
 
 # load the model
 model = joblib.load('model.joblib')
-stock_prediction = model.predict([[float(open_price), float(high), float(low), float(volume)]])
+stock_prediction = model.predict([[float(open_price), float(high), float(low), float(volume), float(yest_close)]])
 print("Predicted stock price: ", stock_prediction)
 
 if stock_prediction[0] > float(price):

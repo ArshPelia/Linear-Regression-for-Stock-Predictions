@@ -10,17 +10,14 @@ from sklearn.preprocessing import LabelEncoder
 
 df = pd.read_pickle('stock_data.pkl')
 
-le = LabelEncoder()
-# df = df.loc[df['Name'] == 'AAL']
 print(df)
 
+df['next_close'] = df['close'].shift(-1)
 df = df.drop(columns=['Name'])
 df = df.drop(columns=['date'])
-# X = df.drop(columns=['next_close'])  #'next_price' as the target variable and the 'price' as the input variable.
-# y = df['next_close']
 df = df[np.isfinite(df).all(1)]
-X = df[["open", "high", "low", "volume"]] # independent variables
-y = df["close"] # dependent variable
+X = df[["open", "high", "low", "volume","close"]] # independent variables
+y = df["next_close"] # dependent variable
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 model = LinearRegression()

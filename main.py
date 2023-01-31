@@ -4,6 +4,8 @@ import requests, re, csv, joblib
 from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 from sklearn.linear_model import LinearRegression
+import numpy as np
+import matplotlib.pyplot as plt
 
 root_tk = tkinter.Tk()  # create the Tk window like you normally do
 root_tk.geometry("500x300")
@@ -22,30 +24,48 @@ def get_stock_info(symbol):
 def EvaluateStock(symbol):
     stock_info = get_stock_info(symbol)
 
-    print(f"Latest information for {symbol}:")
-    print(f"Open: {stock_info['02. open']}")
-    print(f"High: {stock_info['03. high']}")
-    print(f"Low: {stock_info['04. low']}")
-    print(f"Price: {stock_info['05. price']}")
-    print(f"Volume: {stock_info['06. volume']}")
-    print(f"Latest trading day: {stock_info['07. latest trading day']}")
-    print(f"Previous close: {stock_info['08. previous close']}")
-    print(f"Change: {stock_info['09. change']}")
-    print(f"Change percent: {stock_info['10. change percent']}")
+    # print(f"Latest information for {symbol}:")
+    # print(f"Open: {stock_info['02. open']}")
+    # print(f"High: {stock_info['03. high']}")
+    # print(f"Low: {stock_info['04. low']}")
+    # print(f"Price: {stock_info['05. price']}")
+    # print(f"Volume: {stock_info['06. volume']}")
+    # print(f"Latest trading day: {stock_info['07. latest trading day']}")
+    # print(f"Previous close: {stock_info['08. previous close']}")
+    # print(f"Change: {stock_info['09. change']}")
+    # print(f"Change percent: {stock_info['10. change percent']}")
 
-    open = stock_info['02. open']
-    high = stock_info['03. high']
-    low = stock_info['04. low']
-    price = stock_info['05. price']
-    volume = stock_info['06. volume']
-    latest_trading_day = stock_info['07. latest trading day']
-    previous_close = stock_info['08. previous close']
-    change = stock_info['09. change']
-    change_percent = stock_info['10. change percent']
+
+    open = float(stock_info['02. open'])
+    high = float(stock_info['03. high'])
+    low = float(stock_info['04. low'])
+    price = float(stock_info['05. price'])
+    volume = float(stock_info['06. volume'])
+    previous_close = float(stock_info['08. previous close'])
+
+    # latest_trading_day = stock_info['07. latest trading day']
+    # change = stock_info['09. change']
+    # change_percent = stock_info['10. change percent']
 
     model = joblib.load('model.joblib')
-    stock_prediction = model.predict([[float(open), float(high), float(low), float(volume), float(previous_close)]])
+    stock_prediction = model.predict([[open, high, low, volume, previous_close]])
     print("Predicted stock price: ", stock_prediction)
+
+    # make predictions for the next 7 days
+    x = np.array([open, high, low, volume, previous_close])
+    y = np.zeros(7)
+    for i in range(7):
+        y[i] = model.predict([x])[0]
+        x[-1] = y[i]
+    
+    # plot the predictions
+    plt.plot(range(7), y, label="Prediction")
+    plt.plot([0, 6], [price, price], label="Today's Price")
+    plt.xlabel("Days")
+    plt.ylabel("Stock Price")
+    plt.title("Stock Price Prediction")
+    plt.legend()
+    plt.show()
 
 
 def button_function():
